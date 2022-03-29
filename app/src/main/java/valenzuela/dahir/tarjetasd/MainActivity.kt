@@ -12,60 +12,44 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.util.jar.Manifest
+import android.database.sqlite.SQLiteDatabase
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
+    lateinit var amigosDBHelper: miSQLiteHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if ((ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            || (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
-        {
-            ActivityCompat.requestPermissions(this,
-            arrayOf(
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                123
-            )
-        }
+        amigosDBHelper = miSQLiteHelper(this)
         binding.btGuardar.setOnClickListener{
-            Guardar(binding.etNuevoDato.text.toString())
-            binding.tvContenido.text = Cargar()
-        }
-    }
-    fun Guardar(texto: String){
-        try {
-            val rutaSD = baseContext.getExternalFilesDir(null)?.absolutePath
-            val miCarpeta = File(rutaSD,"datos")
-            if (!miCarpeta.exists()){
-                miCarpeta.mkdir()
+            if (binding.etNombre.text.isNotBlank() && binding.etEmail.text.isNotBlank()){
+                amigosDBHelper.anyadirDatos(binding.etNombre.text.toString(), binding.etEmail.text.toString())
+                binding.etNombre.text.clear()
+                binding.etEmail.text.clear()
+                Toast.makeText(this,"Guardado",Toast.LENGTH_LONG).show()
+            }else{
+                Toast.makeText(this, "No se ha podido Guardar", Toast.LENGTH_LONG).show()
             }
-            val ficheroFisico = File(miCarpeta, "datos.txt")
-            ficheroFisico.appendText("$texto\n")
         }
-        catch (e: Exception){
-            Toast.makeText(this,
-            "No se ha podido Guardar",
-            Toast.LENGTH_LONG).show()
+        binding.btcolsultar.setOnClickListener{
+            binding.tvConsulta.text = ""
+            val db : SQLiteDatabase = amigosDBHelper.readableDatabase
+            val cursor = db.rawQuery("SELECT * FROM amigos", null)
+            if (cursor.moveToFirst()){
+                do {
+                    binding.tvConsulta.append(
+                        cursor.getInt(0).toString() + ": ")
+                    binding.tvConsulta.append(
+                        cursor.getString(1).toString() + ", ")
+                    binding.tvConsulta.append(
+                        cursor.getString(2).toString() + "\n")
+                }while (cursor.moveToNext())
+            }
         }
-    }
-    fun Cargar() : String {
-        var texto = ""
-        try {
-            val rutaSD = baseContext.getExternalFilesDir(null)?.absolutePath
-            val miCarpeta = File(rutaSD,"datos")
-            val ficheroFisico = File(miCarpeta, "datos.txt")
-            val fichero = BufferedReader(
-                InputStreamReader(FileInputStream(ficheroFisico))
-            )
-            texto = fichero.use(BufferedReader::readText)
-        }catch (e : Exception){
-            //Nada
-        }
-        return texto
+
     }
 }

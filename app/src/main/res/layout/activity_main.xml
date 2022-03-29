@@ -8,7 +8,15 @@
     android:orientation="vertical">
 
     <EditText
-        android:id="@+id/etNuevoDato"
+        android:id="@+id/etNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Introduce Nuevo Dato"
+        android:inputType="textPersonName"/>
+
+    <EditText
+        android:id="@+id/etEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -21,8 +29,14 @@
         android:layout_height="wrap_content"
         android:text="Guardar"/>
 
+    <Button
+        android:id="@+id/btcolsultar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Guardar"/>
+
     <TextView
-        android:id="@+id/tvContenido"
+        android:id="@+id/tvConsulta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
